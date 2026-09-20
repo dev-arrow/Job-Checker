@@ -1,0 +1,27 @@
+.jd-check-highlight {
+  background-color: #fef08a !important; /* Yellow-200 */
+  color: #854d0e !important; /* Yellow-800 */
+  border-radius: 4px;
+  padding: 2px 4px;
+  box-shadow: 0 0 0 2px #fde047;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.jd-check-highlight:hover {
+  background-color: #fde047 !important;
+}
+
+/* Tooltip for the reason */
+.jd-check-tooltip {
+  position: absolute;
+  background: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 999999;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  max-width: 250px;
+}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JD Checker Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="options-body">
+  <h1 class="title" style="font-size: 1.875rem; margin-bottom: 2rem;">JD Checker Settings</h1>
+
+  <!-- Online Data Sources -->
+  <div>
+    <h2 class="section-title">Online Data Sources</h2>
+    <div class="card">
+      <p class="helper-text" style="margin-bottom: 1rem;">Load block lists and whitelists from Google Sheets. Click Sync to save them to your local cache for fast scanning.</p>
+      
+      <div style="margin-bottom: 1rem;">
+        <label class="form-label">Block Companies URL</label>
+        <input type="url" id="onlineBlockListUrl" class="input" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+        <p class="helper-text">One company per row (CSV format)</p>
+      </div>
+      
+      <div style="margin-bottom: 1rem;">
+        <label class="form-label">Whitelist Phrases URL</label>
+        <input type="url" id="onlineWhitelistUrl" class="input" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+        <p class="helper-text">One phrase per row (CSV format)</p>
+      </div>
+      
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button id="syncBtn" class="btn btn-primary" style="width: auto; margin-top: 0;">Sync from Google Sheets</button>
+        <span id="onlineDataStatus" style="font-size: 0.875rem; font-weight: 500;"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block Company List -->
+  <div>
+    <h2 class="section-title">Local Blocked Companies</h2>
+    <div class="card">
+      <h3 style="margin-top: 0; font-size: 1rem; color: var(--text-main);">Bulk Add Companies</h3>
+      <p class="helper-text" style="margin-bottom: 0.5rem;">Paste a list of companies separated by commas (e.g., Google, Amazon, Facebook).</p>
+      <textarea id="bulkCompanies" class="input" rows="4" placeholder="Company A, Company B, Company C..."></textarea>
+      <button id="bulkAddBtn" class="btn btn-primary" style="margin-top: 0.5rem; width: auto;">Add All</button>
+      
+      <h3 style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-main);">Current Local Block List</h3>
+      <ul id="companyList" class="list-reset">
+        <!-- Companies injected here -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- Checklist Management -->
+  <div>
+    <h2 class="section-title">Checklist Rules</h2>
+    <div id="rulesList">
+      <!-- Rules injected here -->
+    </div>
+    <button id="saveRulesBtn" class="btn btn-primary" style="margin-top: 1rem;">Save Rules</button>
+  </div>
+
+  <!-- About / Version Info -->
+  <div style="margin-top: 3rem; text-align: center; color: var(--text-muted); font-size: 0.875rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+    <p>JD Checker Pro <span id="optionsVersion">v1.0.0</span></p>
+    <p>Deployed: <span id="optionsDate">--</span></p>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
