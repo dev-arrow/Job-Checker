@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const companies = data.blockCompanies || [];
   const rules = data.rules || DEFAULT_RULES;
   
-  // Pre-fill with your specific URLs if not already set
   document.getElementById('onlineBlockListUrl').value = data.onlineBlockListUrl || DEFAULT_ONLINE_BLOCK_URL;
   document.getElementById('onlineWhitelistUrl').value = data.onlineWhitelistUrl || DEFAULT_ONLINE_WHITELIST_URL;
   
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderCompanies(companies);
   renderRules(rules);
 
-  // Sync button - loads from Google Sheets and saves to LOCAL storage
+  // Sync button
   document.getElementById('syncBtn').addEventListener('click', async () => {
     const blockUrl = document.getElementById('onlineBlockListUrl').value.trim();
     const whitelistUrl = document.getElementById('onlineWhitelistUrl').value.trim();
@@ -39,7 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusEl.innerText = 'Syncing from Google Sheets...';
     statusEl.style.color = '#6b7280';
     
-    // Save URLs to sync storage
     await chrome.storage.sync.set({ 
       onlineBlockListUrl: blockUrl,
       onlineWhitelistUrl: whitelistUrl
@@ -49,21 +47,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       const blockData = await fetchOnlineList(blockUrl);
       const whitelistData = await fetchOnlineList(whitelistUrl);
       
-      // Save to LOCAL storage (not sync) for fast access during scans
       await chrome.storage.local.set({
         cachedBlockCompanies: blockData,
         cachedWhitelistPhrases: whitelistData
       });
       
-      statusEl.innerText = `✓ Synced! Loaded ${blockData.length} block companies and ${whitelistData.length} whitelist phrases to local cache.`;
+      statusEl.innerText = `✓ Synced! ${blockData.length} block companies, ${whitelistData.length} whitelist phrases.`;
       statusEl.style.color = '#059669';
       
-      setTimeout(() => {
-        statusEl.innerText = '';
-      }, 5000);
+      // Log to console so you can verify exactly what was loaded
+      console.log('Loaded Block Companies:', blockData);
+      console.log('Loaded Whitelist Phrases:', whitelistData);
+
     } catch (error) {
       console.error('Sync error:', error);
-      statusEl.innerText = ' Error syncing. Check sheet permissions and URL.';
+      statusEl.innerText = '✗ Error syncing. Check sheet permissions.';
       statusEl.style.color = '#dc2626';
     }
   });
@@ -105,27 +103,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
-// Robust CSV Parser for Google Sheets
+// Improved CSV Parser
 async function fetchOnlineList(url) {
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch');
     const text = await response.text();
+    
     const cleanText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     const lines = cleanText.split('\n');
 
     let startIndex = 0;
-    if (lines[0] && /name|company|phrase|keyword|title|list|item/i.test(lines[0])) {
+    // Skip header row if it looks like a header
+    if (lines[0] && /name|company|phrase|keyword|title|list|item|whitelist/i.test(lines[0])) {
       startIndex = 1;
     }
 
-    return lines.slice(startIndex)
-      .map(line => {
-        let item = line.split(',')[0];
-        if (item) item = item.replace(/^"|"$/g, '').trim();
-        return item;
-      })
-      .filter(item => item && item.length > 1);
+    const items = [];
+    for (let i = startIndex; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (!line) continue; // Skip completely empty lines
+      
+      // Take the first column and remove surrounding quotes
+      let item = line.split(',')[0];
+      item = item.replace(/^"|"$/g, '').trim();
+      
+      // Filter out very short items or accidental headers
+      if (item && item.length > 1 && item.toLowerCase() !== 'whitelist') {
+        items.push(item);
+      }
+    }
+    
+    // Remove duplicates automatically
+    return [...new Set(items)];
   } catch (error) {
     console.error('Error fetching online list:', error);
     return [];

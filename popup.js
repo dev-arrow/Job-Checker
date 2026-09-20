@@ -21,12 +21,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const date = storageData.deployedDate || new Date().toLocaleDateString();
   document.getElementById('dateDisplay').innerText = `Deployed: ${date}`;
 
-  // Scan button click handler
-  scanBtn.addEventListener('click', async () => {
+  // --- REUSABLE SCAN FUNCTION ---
+  async function performScan() {
+    // Set UI to loading state
     scanBtn.disabled = true;
     scanBtn.innerHTML = 'Scanning...';
     
-    // Show status card
     statusCard.style.display = 'block';
     statusBadge.className = 'badge badge-gray';
     statusBadge.innerText = 'Scanning...';
@@ -97,7 +97,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
       console.error('Scan error:', error);
       
-      // Specific handling for "Receiving end does not exist"
       if (error.message.includes('Receiving end') || error.message.includes('Could not establish connection')) {
         statusMessage.innerHTML = 'Extension not active on this page.<br><strong>Please refresh the page (F5) and try again.</strong>';
       } else if (error.message.includes('system pages')) {
@@ -109,16 +108,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       statusBadge.innerText = 'Error';
       statusBadge.className = 'badge badge-red';
     } finally {
+      // Re-enable button after scan finishes
       scanBtn.disabled = false;
       scanBtn.innerHTML = `<svg style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>Scan Current Page`;
     }
-  });
+  }
 
+  // 1. Run scan automatically when popup opens
+  performScan();
+
+  // 2. Run scan when button is clicked
+  scanBtn.addEventListener('click', performScan);
+
+  // Clear highlights button
   clearBtn.addEventListener('click', () => {
     chrome.tabs.sendMessage(tab.id, { action: 'CLEAR_HIGHLIGHTS' });
     clearBtn.style.display = 'none';
   });
 
+  // Settings button
   document.getElementById('settingsBtn').addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
   });
